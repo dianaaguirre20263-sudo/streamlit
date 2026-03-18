@@ -18,7 +18,7 @@ st.set_page_config(
 # --- En Colombia, los servicios de Internet fijo presentan variaciones según el departamento, municipio, proveedor, tecnología utilizada y segmento de usuarios. Analizar estos patrones permite entender cómo se distribuye la conectividad en el territorio nacional y cómo ha evolucionado a lo largo del tiempo.
 
 # --- **Alcance del proyecto---
-El presente proyecto se enfoca específicamente en el análisis de la conectividad digital en los departamentos de **Antioquia** y **Risaralda**, permitiendo un estudio más detallado y contextualizado de estas regiones.
+# --- El presente proyecto se enfoca específicamente en el análisis de la conectividad digital en los departamentos de **Antioquia** y **Risaralda**, permitiendo un estudio más detallado y contextualizado de estas regiones.
 
 ---
 
