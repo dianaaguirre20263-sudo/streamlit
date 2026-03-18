@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
+from urllib.request import Request, urlopen
+import io
 
 # --- CONFIGURACIÓN DE PÁGINA ---
 st.set_page_config(
@@ -40,21 +42,28 @@ st.markdown("""
         padding: 10px;
         z-index: 100;
     }
-    /* Margen inferior para que el footer no tape contenido */
     .main .block-container {
         padding-bottom: 100px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- CARGA Y LIMPIEZA DE DATOS ---
+# --- CARGA Y LIMPIEZA DE DATOS CORREGIDA ---
 @st.cache_data
 def load_data():
     url = "https://www.datos.gov.co/api/v3/views/n48w-gutb/query.csv"
     try:
-        df = pd.read_csv(url)
+        # Simulamos un navegador para evitar el Error 403
+        request = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+        response = urlopen(request).read()
+        
+        # Leemos el contenido descargado
+        df = pd.read_csv(io.BytesIO(response))
+        
+        # Limpieza de columnas
         df.columns = [c.lower().replace(' ', '_') for c in df.columns]
-        df['sector'] = df['sector'].fillna('No Definido')
+        if 'sector' in df.columns:
+            df['sector'] = df['sector'].fillna('No Definido')
         return df
     except Exception as e:
         st.error(f"Error en la conexión: {e}")
@@ -84,36 +93,43 @@ if st.session_state.view == 'home':
 else:
     data = load_data()
     
-    st.sidebar.image("https://www.cursosaula21.com/wp-content/uploads/2021/03/internet-que-es-portada-890x445-1.jpg")
-    if st.sidebar.button("🏠 Inicio"):
-        st.session_state.view = 'home'
-        st.rerun()
+    if data.empty:
+        st.warning("No se pudieron cargar los datos. Verifica la URL o tu conexión.")
+    else:
+        st.sidebar.image("https://www.cursosaula21.com/wp-content/uploads/2021/03/internet-que-es-portada-890x445-1.jpg")
+        if st.sidebar.button("🏠 Inicio"):
+            st.session_state.view = 'home'
+            st.rerun()
 
-    tab_exec, tab_stats, tab_info = st.tabs(["📊 Dashboard", "🧠 Análisis Experto", "📖 Documentación"])
+        tab_exec, tab_stats, tab_info = st.tabs(["📊 Dashboard", "🧠 Análisis Experto", "📖 Documentación"])
 
-    with tab_exec:
-        st.header("Dashboard Ejecutivo")
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Registros", len(data))
-        c2.metric("Sectores", data['sector'].nunique())
-        c3.metric("Entidades", data['nombre_de_la_entidad'].nunique())
+        with tab_exec:
+            st.header("Dashboard Ejecutivo")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Registros", len(data))
+            if 'sector' in data.columns:
+                c2.metric("Sectores", data['sector'].nunique())
+            if 'nombre_de_la_entidad' in data.columns:
+                c3.metric("Entidades", data['nombre_de_la_entidad'].nunique())
 
-        sector_counts = data['sector'].value_counts().reset_index().head(10)
-        sector_counts.columns = ['sector', 'count']
-        fig = px.bar(sector_counts, x='count', y='sector', orientation='h', title="Top 10 Sectores")
-        st.plotly_chart(fig, use_container_width=True)
+            if 'sector' in data.columns:
+                sector_counts = data['sector'].value_counts().reset_index().head(10)
+                sector_counts.columns = ['sector', 'count']
+                fig = px.bar(sector_counts, x='count', y='sector', orientation='h', title="Top 10 Sectores")
+                st.plotly_chart(fig, use_container_width=True)
 
-    with tab_stats:
-        st.header("Análisis con Seaborn")
-        fig, ax = plt.subplots(figsize=(10, 6))
-        top_ent = data['nombre_de_la_entidad'].value_counts().head(10)
-        sns.barplot(x=top_ent.values, y=top_ent.index, palette="Blues_d", ax=ax)
-        ax.set_title("Top 10 Entidades (Análisis Estadístico)")
-        st.pyplot(fig)
-        st.info("Este gráfico de Seaborn permite visualizar la concentración de reportes por entidad pública.")
+        with tab_stats:
+            st.header("Análisis con Seaborn")
+            if 'nombre_de_la_entidad' in data.columns:
+                fig, ax = plt.subplots(figsize=(10, 6))
+                top_ent = data['nombre_de_la_entidad'].value_counts().head(10)
+                sns.barplot(x=top_ent.values, y=top_ent.index, palette="Blues_d", ax=ax)
+                ax.set_title("Top 10 Entidades (Análisis Estadístico)")
+                st.pyplot(fig)
+            st.info("Visualización de la concentración de reportes por entidad pública.")
 
-    with tab_info:
-        st.header("Documentación Grupo 16")
-        st.write("Metodología: Limpieza con Pandas, Visualización con Seaborn y Plotly.")
+        with tab_info:
+            st.header("Documentación Grupo 16")
+            st.write("Metodología: Limpieza con Pandas, Visualización con Seaborn y Plotly.")
 
 st.markdown("<div class='footer'>Grupo 16 - Talento Tech 2024</div>", unsafe_allow_html=True)
