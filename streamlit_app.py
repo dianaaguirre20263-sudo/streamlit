@@ -66,18 +66,8 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- CARGA Y LIMPIEZA DE DATOS ---
-@st.cache_data
-def load_data():
-    url = "https://www.datos.gov.co/api/v3/views/n48w-gutb/query.csv"
-    try:
-        df = pd.read_csv(url)
-        df.columns = [c.lower().replace(' ', '_') for c in df.columns]
-        df['sector'] = df['sector'].fillna('No Definido')
-        return df
-    except Exception as e:
-        st.error(f"Error en la conexión: {e}")
-        return pd.DataFrame()
+
+
 
 # --- GESTIÓN DE ESTADO ---
 if 'view' not in st.session_state:
