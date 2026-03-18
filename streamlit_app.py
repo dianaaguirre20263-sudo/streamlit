@@ -26,11 +26,11 @@ El presente proyecto se enfoca específicamente en el análisis de la conectivid
 
 Diseñar una base de datos que permita **almacenar, organizar y analizar** la información relacionada con los accesos a Internet fijo en Colombia, facilitando consultas sobre:
 
-✅ Distribución geográfica del servicio  
-✅ Evolución temporal del acceso  
-✅ Participación de proveedores  
-✅ Uso de tecnologías de conexión  
-✅ Comportamiento de los distintos segmentos de usuarios  
+ Distribución geográfica del servicio  
+ Evolución temporal del acceso  
+Participación de proveedores  
+Uso de tecnologías de conexión  
+Comportamiento de los distintos segmentos de usuarios  
 # --- ESTILOS PERSONALIZADOS (CSS) ---
 st.markdown("""
     <style>
