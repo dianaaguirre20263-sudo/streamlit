@@ -11,26 +11,7 @@ st.set_page_config(
     page_icon="📊",
     layout="wide"
 )
-# 📊 Análisis Exploratorio y Modelado de Datos de Conectividad Digital en Colombia
 
-# --- El acceso a Internet es un factor fundamental para el desarrollo social, educativo y económico de un país. Sin embargo, la disponibilidad del servicio no es uniforme entre las distintas regiones, lo que genera brechas digitales que afectan la calidad de vida de la población.
-
-# --- En Colombia, los servicios de Internet fijo presentan variaciones según el departamento, municipio, proveedor, tecnología utilizada y segmento de usuarios. Analizar estos patrones permite entender cómo se distribuye la conectividad en el territorio nacional y cómo ha evolucionado a lo largo del tiempo.
-
-# --- **Alcance del proyecto---
-# --- El presente proyecto se enfoca específicamente en el análisis de la conectividad digital en los departamentos de **Antioquia** y **Risaralda**, permitiendo un estudio más detallado y contextualizado de estas regiones.
-
----
-
-## 🎯 Objetivo del Proyecto
-
-# --- Diseñar una base de datos que permita **almacenar, organizar y analizar** la información relacionada con los accesos a Internet fijo en Colombia, facilitando consultas sobre:
-
-# ---  Distribución geográfica del servicio  
-# ---  Evolución temporal del acceso  
-# --- Participación de proveedores  
-# --- Uso de tecnologías de conexión  
-# --- Comportamiento de los distintos segmentos de usuarios  
 # --- ESTILOS PERSONALIZADOS (CSS) ---
 st.markdown("""
     <style>
@@ -66,8 +47,18 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-
-
+# --- CARGA Y LIMPIEZA DE DATOS ---
+@st.cache_data
+def load_data():
+    url = "https://www.datos.gov.co/api/v3/views/n48w-gutb/query.csv"
+    try:
+        df = pd.read_csv(url)
+        df.columns = [c.lower().replace(' ', '_') for c in df.columns]
+        df['sector'] = df['sector'].fillna('No Definido')
+        return df
+    except Exception as e:
+        st.error(f"Error en la conexión: {e}")
+        return pd.DataFrame()
 
 # --- GESTIÓN DE ESTADO ---
 if 'view' not in st.session_state:
